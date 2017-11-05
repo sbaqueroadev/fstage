@@ -1,0 +1,17 @@
+/**********************GENERAL STYLE FOR ORDER SECTION***********************+*/
+h2,h4{
+	text-align: center;
+	color:#009;
+}
+
+.tab-content.content
+{
+	padding-top:20px;
+}
+
+.tab-content.content input[type=submit],
+.tab-content.content table.records-table
+{
+	margin-top:20px;
+}
+
