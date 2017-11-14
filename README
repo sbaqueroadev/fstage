@@ -1,0 +1,28 @@
+README FILE.
+
+Datos iniciales.
+-------------------------------------------------
+La base de datos actual se llama FStage.
+
+Para efectos de prueba se trabajó con las siguientes variables:
+
+usuario = fstage
+password = fstagepass
+puerto mysql 3306
+
+El link GitHub del repositorio es:
+
+https://github.com/sbaqueroadev/fstage
+
+¡¡¡¡¡¡¡¡¡¡¡¡IMPORTANTE!!!!!!!!!!!!
+
+**** La configuración de la base de datos se realiza en 
+
+application.properties
+
+
+*****
+
+----------------------------------------------
+Autor: Sergio Baquero Ariza
+---------------------------------------------
