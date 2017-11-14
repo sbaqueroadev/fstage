@@ -5,19 +5,27 @@
 <%@ page language="java" contentType="text/html; charset=UTF-8"
 	pageEncoding="UTF-8"%>
 <%@page import="co.com.sbaqueroa.model.implementation.*"%>
+<%@page import="co.com.sbaqueroa.services.*"%>
 <%@page import="org.json.*"%>
 <%@page import="java.text.SimpleDateFormat"%>
 <%@page import="java.util.Date"%>
 
-<div class="container"
+<div id="record-container" class="container"
 		ng-controller="recordListCtrlr"
-	ng-init='customers = <%=new Customer().getAllJSON().toString()%>'>
+	ng-init='customers = []'>
 	<h4>Order history</h4>
 	<div class="row">
+		<div class="col-md-offset-9 col-md-3 reload-button">
+			<a href="#" ng-click="loadData()">REFRESH</a>
+		</div>
+	</div>
+	<div class="row">
 		<div class="col-md-offset-4 col-md-4">
-			<label for="customer"> Customer: </label> <select class="form-control"
-				name="name" ng-model="name">
-				<option ng-repeat="customer in customers" value="{{customer.name}}">{{customer.name}}</option>
+			<label for="customer"> Customer: </label> 
+			<select class="form-control"
+				name="name" data-ng-model="name"
+				data-ng-options="customer.name for customer in customers">
+				<!-- <option ng-repeat="customer in customers" value="{{customer.name}}">{{customer.name}}</option>-->
 			</select>
 		</div>
 	</div>
@@ -34,7 +42,7 @@
 		</div>
 	</div>
 	<table class="table table-bordered table-striped records-table"
-		ng-init='records = <%=new OrderRecordView().getAllJSON().toString()%>'>
+		ng-init='records = []'>
 
 		<thead>
 			<tr>
@@ -50,10 +58,10 @@
 			<tr
 				ng-repeat="record in records | orderBy:sortType:sortReverse | byName:name |byDate:dateFrom:dateTo">
 				<td style="display: none">{{ record.customerName }}</td>
-				<td>{{ record.creationDate | date:format:"dd-MM-yyyy" }}</td>
-				<td>{{ record.id }}</td>
+				<td>{{ record.order.creationDate | date:format:"dd-MM-yyyy" }}</td>
+				<td>{{ record.order.id }}</td>
 				<td>{{ record.total | currency}}</td>
-				<td>{{ record.deliveryAddress }}</td>
+				<td>{{ record.order.deliveryAddress }}</td>
 				<td>{{ record.productsDescription }}</td>
 			</tr>
 		</tbody>

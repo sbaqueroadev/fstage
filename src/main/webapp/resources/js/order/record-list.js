@@ -5,6 +5,32 @@ mainApp.controller("recordListCtrlr", ['$scope','$q','$http',function($scope,$q,
 	$scope.sortType = "id";
 	$scope.dateFrom = new Date();
 	$scope.dateTo = new Date();
+	$scope.loadData = function(){
+		var aux = $scope.name;
+		$scope.name = undefined;
+		$http.get("../customer/")
+		.then(function success(response){
+			$scope.customers = response.data;
+			$.each($scope.customers,function(index,item){
+				if (item.name.indexOf(aux.name)>-1)  {
+					$scope.name = $scope.customers[index];    
+				}            
+	        });
+				
+				//$('#record-container select[name="name"] option[value="'+$scope.name+'"]').attr("selected","selected");
+		},
+		function error(response){
+			$scope.customers = [];
+		});
+		$http.get("../orderRecordView/")
+		.then(function success(response){
+			$scope.records = response.data;
+		},
+		function error(response){
+			$scope.records = [];
+		});
+	};
+	$scope.loadData();
 }]);
 /********************************************************************************/
 /************************ CUSTOM FILTERS****************************************/
@@ -17,7 +43,8 @@ mainApp.filter("byDate",function(){
         dt.setHours(23,59,59,999);
         var result = [];        
         for (var i=0; i<items.length; i++){
-            var tf = new Date(parseDate(items[i].creationDate+" GMT -0500"))
+            var tf = new Date();
+            tf.setTime(items[i].order.creationDate);
             if (tf >= df && tf <= dt)  {
                 result.push(items[i]);
             }
@@ -28,10 +55,10 @@ mainApp.filter("byDate",function(){
 /********************************************************************************/
 /************************ CUSTOMER NAME FILTER****************************************/
 mainApp.filter("byName",function(){
-	return function(items, name) {
+	return function(items, customer) {
 		var result = [];
 		$.each(items,function(index,item){
-			if (item.customerName.indexOf(name)>-1)  {
+			if (item.customerName.indexOf(customer.name)>-1)  {
                 result.push(item);
 			}            
         });

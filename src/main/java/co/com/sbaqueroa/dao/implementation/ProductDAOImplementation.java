@@ -1,9 +1,5 @@
 package co.com.sbaqueroa.dao.implementation;
 
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.util.ArrayList;
 import java.util.List;
 
 import javax.persistence.EntityManager;
@@ -15,28 +11,28 @@ import javax.sql.DataSource;
 
 import org.springframework.stereotype.Repository;
 
-import co.com.sbaqueroa.dao.OrderRecordViewDAO;
-import co.com.sbaqueroa.model.implementation.OrderRecordView;
+import co.com.sbaqueroa.dao.ProductDAO;
+import co.com.sbaqueroa.model.implementation.Product;
 
 /**
  * 
- * Class which implements {@link OrderRecordViewDAO}. Contains table and column names and the 
+ * Class which implements {@link AvailableProductDAO}. Contains table and column names and the 
  * {@link DataSource} object to manage SQL connection.
  * 
  * @author sergio
  *
  */
 @Repository
-public class OrderRecordViewDAOImplementation implements OrderRecordViewDAO {
+public class ProductDAOImplementation implements ProductDAO {
 
 	@PersistenceContext
 	private EntityManager entityManager;
 	
 	@Override
-	public List<OrderRecordView> getAll() throws Exception {
+	public List<Product> getAll() throws Exception {
 		CriteriaBuilder builder = entityManager.getCriteriaBuilder();
-	    CriteriaQuery<OrderRecordView> cq = builder.createQuery(OrderRecordView.class);
-	    Root<OrderRecordView> root = cq.from(OrderRecordView.class);
+	    CriteriaQuery<Product> cq = builder.createQuery(Product.class);
+	    Root<Product> root = cq.from(Product.class);
 	    cq.select(root);
 	    return entityManager.createQuery(cq).getResultList();
 	}

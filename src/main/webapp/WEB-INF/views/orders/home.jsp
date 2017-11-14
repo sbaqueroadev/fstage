@@ -26,11 +26,11 @@
 		<!-- Tab panes -->
 		<div class="tab-content content" ng-app='addorderapp'>
 			<div role="tabpanel" class="tab-pane fade in active" id="addOrder">
-<!------------------- Include add order process view ------------------------------>
+<!------------------- Include add order process view ---------------------------->
 				<jsp:include page="addForm.jsp"></jsp:include>
 			</div>
 			<div role="tabpanel" class="tab-pane fade" id="record">
-<!------------------- Include order history process view ------------------------------>
+<!------------------- Include order record view ---------------------------->
 				<jsp:include page="recordList.jsp"></jsp:include>
 			</div>
 		</div>

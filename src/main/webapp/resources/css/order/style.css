@@ -15,3 +15,7 @@ h2,h4{
 	margin-top:20px;
 }
 
+.reload-button{
+	text-align:right;
+	padding-right:25px;
+}

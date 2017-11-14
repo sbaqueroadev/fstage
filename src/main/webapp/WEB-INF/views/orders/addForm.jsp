@@ -1,15 +1,21 @@
 <!------------------- Add order Form view 
 	After submitting, new order is added.
 ------------------------------>
+<%@page import="co.com.sbaqueroa.services.CustomerImpl"%>
 <%@ page language="java" contentType="text/html; charset=UTF-8"
 	pageEncoding="UTF-8"%>
 <%@taglib prefix="form" uri="http://www.springframework.org/tags/form"%>
 <%@page import="co.com.sbaqueroa.model.implementation.*"%>
 <%@page import="org.json.*"%>
-<div>
+<div ng-controller="orderCtrlr as vm">
 	<h4>Add Order</h4>
-	<form id="addOrderForm" ng-controller="orderCtrlr as vm"
-		ng-init='customers = <%=new Customer().getAllJSON().toString()%>'
+	<div class="row">
+		<div class="col-md-offset-9 col-md-3 reload-button">
+			<a href="#" ng-click="loadData()">REFRESH</a>
+		</div>
+	</div>
+	<form id="addOrderForm" 
+		ng-init='customers = []'
 		ng-submit="send()" class="col-md-offset-1 col-md-10">
 		<div class="col-md-4">
 			<label for="customer"> Customer: </label> <select name="customer"

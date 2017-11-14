@@ -4,7 +4,9 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.json.JSONObject;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -25,6 +27,10 @@ public class OrderServices {
 	/** Handles request to show the add Order form view
 	 * @return View in order/addForm.jsp
 	 */
+	
+	@Autowired
+	private OrderImpl orderImpl;
+	
 	@RequestMapping(value="/order/form",method = {RequestMethod.GET})
 	public ModelAndView form(){
 		ModelAndView mv = new ModelAndView();
@@ -38,10 +44,10 @@ public class OrderServices {
 	 * @return View in order/addForm.jsp
 	 */
 	@RequestMapping(value="/order/home",method = {RequestMethod.GET})
-	public ModelAndView home(){
+	public String home(){
 		ModelAndView mv = new ModelAndView();
 		mv.setViewName("orders/home");
-		return mv;
+		return "orders/home";
 	}
 	
 	/**
@@ -51,6 +57,7 @@ public class OrderServices {
 	@RequestMapping(value="/order/",method = {RequestMethod.GET})
 	public @ResponseBody List<Order> getAll(){
 		List<Order> result= new ArrayList<Order>();
+		result = orderImpl.getAll();
 		return result;
 	}
 	
@@ -60,11 +67,12 @@ public class OrderServices {
 	 * @return {@link JSONObject} with result true if process is successful or fail otherwise.
 	 */
 	@RequestMapping(value="/order/",method = {RequestMethod.POST})
+	@Transactional(noRollbackFor = Exception.class)
 	public @ResponseBody String add(@RequestBody Order order){
 		JSONObject result = new JSONObject();
-		if(order.add())
+		if(orderImpl.add(order)){
 			return result.put("result", "OK").toString();
-		else
+		}else
 			return result.put("result", "fail").toString();
 		
 	}

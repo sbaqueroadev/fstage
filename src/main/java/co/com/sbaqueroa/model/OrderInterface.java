@@ -1,5 +1,10 @@
 package co.com.sbaqueroa.model;
 
+import java.util.List;
+
+import org.json.JSONArray;
+
+import co.com.sbaqueroa.model.implementation.Customer;
 import co.com.sbaqueroa.model.implementation.Order;
 
 /**
@@ -12,9 +17,16 @@ public interface OrderInterface {
 
 	/**
 	 * <p>
-	 * Add new {@link Order}.
+	 * Get all saved {@link Customer}.
 	 * </p>
-	 * @return true if process is successful or false otherwise.
+	 * @return List of {@link Customer}
 	 */
-	public boolean add();
+	public List<Order> getAll();
+	/**
+	 * @return
+	 */
+	public JSONArray getAllJSON();
+	
+	public boolean add(Order order);
+	public boolean update(Order order);
 }

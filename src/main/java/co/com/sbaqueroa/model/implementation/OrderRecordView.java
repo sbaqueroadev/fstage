@@ -1,17 +1,22 @@
 package co.com.sbaqueroa.model.implementation;
 
-import java.util.ArrayList;
+import java.io.Serializable;
 import java.util.Date;
-import java.util.List;
 
-import javax.sql.DataSource;
+import javax.persistence.Column;
+import javax.persistence.Embeddable;
+import javax.persistence.Entity;
+import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.OneToOne;
+import javax.persistence.Table;
 
-import org.json.JSONArray;
+import org.hibernate.annotations.Immutable;
 import org.json.JSONObject;
-import org.springframework.context.ApplicationContext;
-import org.springframework.context.support.ClassPathXmlApplicationContext;
 
-import co.com.sbaqueroa.dao.implementation.OrderRecordViewDAOImplementation;
+import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
+
 import co.com.sbaqueroa.model.OrderRecordViewInterface;
 
 /**
@@ -21,11 +26,20 @@ import co.com.sbaqueroa.model.OrderRecordViewInterface;
  * @author sergio
  *
  */
+@Entity
+@Table(name="order_record_view")
+public class OrderRecordView implements Serializable{
 
-public class OrderRecordView extends Order implements OrderRecordViewInterface{
-
+	@Id
+	@OneToOne
+    @JoinColumn(name = "order_id")
+	@JsonManagedReference
+	private Order order;
+	@Column(name="total")
 	private float total;
+	@Column(name="customer_name")
 	private String customerName;
+	@Column(name="products")
 	private String productsDescription;
 	
 	/**
@@ -39,10 +53,10 @@ public class OrderRecordView extends Order implements OrderRecordViewInterface{
 	 * @param builder the Builder reference to create new object.
 	 */
 	public OrderRecordView(Builder builder) {
-		Order o = new Order(builder);
-		this.setCreationDate(o.getCreationDate());
-		this.setDeliveryAddress(o.getDeliveryAddress());
-		this.setId(o.getId());
+		this.order = new Order();
+		this.order.setCreationDate(builder.order.getCreationDate());
+		this.order.setDeliveryAddress(builder.order.getDeliveryAddress());
+		this.order.setId(builder.order.getId());
 		this.customerName = builder.customerName;
 		this.productsDescription = builder.productsDescription;
 		this.total = builder.total;
@@ -83,32 +97,30 @@ public class OrderRecordView extends Order implements OrderRecordViewInterface{
 	public void setProductsDescription(String productsDescription) {
 		this.productsDescription = productsDescription;
 	}
-
-
-	@Override
-	public List<OrderRecordView> getAll() {
-		OrderRecordViewDAOImplementation cdaoi= new OrderRecordViewDAOImplementation();
-		ApplicationContext appCtx = new ClassPathXmlApplicationContext("co/com/sbaqueroa/xml/beansConfig.xml");
-		DataSource dataSource = (DataSource) appCtx.getBean("dataSource");
-		cdaoi.setDataSource(dataSource);
-		try {
-			return cdaoi.getAll();
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-		return new ArrayList<OrderRecordView>();
-	}
-	@Override
-	public JSONArray getAllJSON() {
-		JSONArray ja = new JSONArray();
-		for(OrderRecordView orv:this.getAll())
-			ja.put(orv.toJSON());
-		return ja;
-	}
 	
-	@Override
+	
+
+
+	/**
+	 * @return the order
+	 */
+	public Order getOrder() {
+		return order;
+	}
+	/**
+	 * @param order the order to set
+	 */
+	public void setOrder(Order order) {
+		this.order = order;
+	}
+	/**
+	 * @param total the total to set
+	 */
+	public void setTotal(float total) {
+		this.total = total;
+	}
 	public JSONObject toJSON() {
-		JSONObject result = super.toJSON();
+		JSONObject result = this.order.toJSON();
 		return result
 				.put("customerName", this.customerName)
 				.put("productsDescription", this.productsDescription)
@@ -122,10 +134,11 @@ public class OrderRecordView extends Order implements OrderRecordViewInterface{
 	 * @author sergio
 	 *
 	 */
-	public static class Builder extends Order.Builder{
+	public static class Builder{
 		private float total;
 		private String customerName;
 		private String productsDescription;
+		private Order order;
 		
 		
 		
@@ -137,16 +150,16 @@ public class OrderRecordView extends Order implements OrderRecordViewInterface{
 		}
 		
 		public Builder setId(int id){
-			super.setId(id);
+			this.order.setId(id);
 			return this;
 		}
 		
 		public Builder setDeliveryAddress(String deliveryAddress){
-			super.setDeliveryAddress(deliveryAddress);
+			this.order.setDeliveryAddress(deliveryAddress);
 			return this;
 		}
 		public Builder setCreationDate(Date date){
-			super.setCreationDate(date);
+			this.order.setCreationDate(date);
 			return this;
 		}
 		

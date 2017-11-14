@@ -1,8 +1,20 @@
 package co.com.sbaqueroa.model.implementation;
 
-import java.util.List;
+import java.io.Serializable;
+import java.util.Set;
 
-import org.json.JSONArray;
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.FetchType;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
+import javax.persistence.OneToMany;
+import javax.persistence.Table;
+
+import org.json.JSONObject;
+
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 
 import co.com.sbaqueroa.model.ProductInterface;
 
@@ -13,13 +25,13 @@ import co.com.sbaqueroa.model.ProductInterface;
  * @author sergio
  *
  */
-public class Product implements ProductInterface{
-	
+@Entity
+@Table(name="product")
+public class Product implements Serializable{
 	private int id;
 	private String name;
 	private float price;
-	
-	
+		
 	
 	/**
 	 * Super class constructor
@@ -30,6 +42,8 @@ public class Product implements ProductInterface{
 	/**
 	 * @return the id
 	 */
+	@Id
+	@Column(name="product_id",nullable=false)
 	public int getId() {
 		return id;
 	}
@@ -42,6 +56,7 @@ public class Product implements ProductInterface{
 	/**
 	 * @return the name
 	 */
+	@Column(name="name",nullable=false)
 	public String getName() {
 		return name;
 	}
@@ -54,15 +69,11 @@ public class Product implements ProductInterface{
 	/**
 	 * @return the price
 	 */
+	@Column(name="price",nullable=false)
 	public float getPrice() {
 		return price;
 	}
-	/**
-	 * @param price the price to set
-	 */
-	public void setPrice(long price) {
-		this.price = price;
-	}
+	
 	/**
 	 * Constructor from builder
 	 * @param builder the Builder reference to create new object.
@@ -72,17 +83,16 @@ public class Product implements ProductInterface{
 		this.name = builder.name;
 		this.price = builder.price;
 	}
-	@Override
-	public List<Product> getAll() {
-		//TODO Auto-generated method stub
-		return null;
-	}
-	@Override
-	public JSONArray getAllJSON() {
-		// TODO Auto-generated method stub
-		return null;
-	}
 	
+	
+	/**
+	 * @param price the price to set
+	 */
+	public void setPrice(float price) {
+		this.price = price;
+	}
+
+
 	/**
 	 * Inner class to help in Product construction. 
 	 * @author sergio
@@ -130,6 +140,17 @@ public class Product implements ProductInterface{
 		public Product build(){
 			return new Product(this);
 		}
+	}
+
+
+	/**
+	 * @return
+	 */
+	public JSONObject toJSON() {
+		return new JSONObject()
+				.put("id", this.id)
+				.put("name", this.name)
+				.put("price",this.price);
 	}
 
 }

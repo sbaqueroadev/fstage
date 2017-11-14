@@ -6,10 +6,23 @@ mainApp.controller("orderCtrlr", ['$scope','$q','$http',function($scope,$q,$http
 	$scope.selectedCustomerId = -1;
 	$scope.selectedCustomerChanged = function(){
 		$scope.selectedProducts = [];
+		$scope.availableProducts = [];
 		loadAvailableProducts().then(function(data){
 			$scope.availableProducts = data;
 		});
 	};
+	$scope.loadData = function(){
+		$http.get("../customer/")
+		.then(function success(response){
+			$scope.selectedCustomerId = -1;
+			$scope.customers = response.data;
+			$scope.selectedCustomerChanged();
+		},
+		function error(response){
+			$scope.customers = [];
+		});
+	};
+	$scope.loadData();
 	$scope.selectedProductsChanged = function(){
 		if($scope.toFillProducts.length>5){
 			alert("Just 5 products are available.");
@@ -38,13 +51,17 @@ mainApp.controller("orderCtrlr", ['$scope','$q','$http',function($scope,$q,$http
 	/************************ LOAD AVAILABLE CREDITS BY CUSTOMER****************************************/
 	function loadAvailableProducts(){
 		var deferred = $q.defer();
-		$http.get("../product/availables/"+$scope.selectedCustomerId,[{headers:"Accept=*/*"}])
-		.then(function success(response){
-			deferred.resolve(response.data);
-		},
-		function error(response){
-			deferred.resolve([]);//[{id:1,name:"P1"}]);
+		var flag = false; 
+		$.each($scope.customers,function(index,item){
+			if(item.id == $scope.selectedCustomerId){
+				deferred.resolve(item.availableProducts);
+				flag = true;
+				return false;
+				
+			}
 		});
+		if(!flag)
+			deferred.resolve([]);//[{id:1,name:"P1"}]);
 		return deferred.promise;
 	}
 	/********************************************************************************/
@@ -52,13 +69,12 @@ mainApp.controller("orderCtrlr", ['$scope','$q','$http',function($scope,$q,$http
 	function sendOrder(){
 		var deferred = $q.defer();
 		var data = {
-				customerId:$scope.selectedCustomerId,
-				products:[],
+				customer:{id:$scope.selectedCustomerId},
+				orderDetail:[],
 				deliveryAddress:$scope.address
 		};
 		$.each($scope.selectedProducts,function(index,item){
-			data.products.push({id:item.id,
-				name:item.name,
+			data.orderDetail.push({product:{id:item.id},
 				quantity:item.quantity});
 		});
 		$http.post("../order/",JSON.stringify(data))

@@ -39,7 +39,7 @@ public class ProductServices {
 			method = {RequestMethod.GET},produces="application/json")
 	public @ResponseBody List<Product> getAvailableProducts(@PathVariable int customerId){
 		List<Product> result= new ArrayList<Product>();
-		result = new Customer.Builder().setId(customerId).build().getAvailableProducts();
+		//result = new Customer.Builder().setId(customerId).build().getAvailableProducts();
 		return result;
 	}
 	

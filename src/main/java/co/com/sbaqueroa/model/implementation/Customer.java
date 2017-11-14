@@ -1,17 +1,23 @@
 package co.com.sbaqueroa.model.implementation;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.io.Serializable;
+import java.util.HashSet;
+import java.util.Set;
 
-import javax.sql.DataSource;
+import javax.persistence.CascadeType;
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.FetchType;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.JoinTable;
+import javax.persistence.ManyToMany;
+import javax.persistence.Table;
 
-import org.json.JSONArray;
 import org.json.JSONObject;
-import org.springframework.context.ApplicationContext;
-import org.springframework.context.support.ClassPathXmlApplicationContext;
 
-import co.com.sbaqueroa.dao.implementation.AvaliableProductDAOImplementation;
-import co.com.sbaqueroa.dao.implementation.CustomerDAOImplementation;
 import co.com.sbaqueroa.model.CustomerInterface;
 
 /**
@@ -21,12 +27,15 @@ import co.com.sbaqueroa.model.CustomerInterface;
  * @author sergio
  *
  */
-public class Customer implements CustomerInterface{
+@Entity
+@Table(name="customer")
+public class Customer implements Serializable{
 	
 	private int id;
 	private String name;
 	private String email;
-	private List<Product> availableProducts;
+	
+	private Set<Product> availableProducts = new HashSet<Product>();
 	
 	
 	
@@ -47,60 +56,95 @@ public class Customer implements CustomerInterface{
 		this.id = builder.id;
 	}
 
-	@Override
-	public JSONArray getAllJSON() {
-		JSONArray ja = new JSONArray();
-		for(Customer c:this.getAll())
-			ja.put(c.toJSON());
-		return ja;
-	}
+	
 	
 	/**
 	 * Parse object to JSON format.
 	 * @return Object in JSON format.
 	 */
-	private JSONObject toJSON() {
+	public JSONObject toJSON() {
 		return new JSONObject()
 				.put("name", this.name)
 				.put("email", this.email)
 				.put("id", this.id);
 	}
 
-	@Override
-	public List<Customer> getAll() {
-		CustomerDAOImplementation cdaoi= new CustomerDAOImplementation();
-		ApplicationContext appCtx = new ClassPathXmlApplicationContext("co/com/sbaqueroa/xml/beansConfig.xml");
-		DataSource dataSource = (DataSource) appCtx.getBean("dataSource");
-		cdaoi.setDataSource(dataSource);
-		try {
-			return cdaoi.getAll();
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-		return new ArrayList<Customer>();
-	}
+	
 	
 	/**
 	 * @return the id
 	 */
+	@Id
+	@Column(name="customer_id")
 	public int getId() {
 		return this.id;
 	}
+	
+	
 
-	@Override
-	public List<Product> getAvailableProducts() {
-		AvaliableProductDAOImplementation cdaoi= new AvaliableProductDAOImplementation();
-		ApplicationContext appCtx = new ClassPathXmlApplicationContext("co/com/sbaqueroa/xml/beansConfig.xml");
-		DataSource dataSource = (DataSource) appCtx.getBean("dataSource");
-		cdaoi.setDataSource(dataSource);
-		try {
-			return cdaoi.getByCustomer(this);
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-		return new ArrayList<Product>();
+	/**
+	 * @return the name
+	 */
+	@Column(name="name")
+	public String getName() {
+		return name;
+	}
+
+	/**
+	 * @return the email
+	 */
+	@Column(name="email")
+	public String getEmail() {
+		return email;
+	}
+
+	/**
+	 * @return
+	 */
+	@ManyToMany(fetch= FetchType.LAZY)
+	@JoinTable(name = "available_product"
+	, joinColumns = { @JoinColumn(name = "customer_id") }
+	, inverseJoinColumns = { @JoinColumn(name = "product_id") })
+	public Set<Product> getAvailableProducts() {
+		return this.availableProducts;
 	}
 	
+	
+	
+	
+	
+	/**
+	 * @param id the id to set
+	 */
+	public void setId(int id) {
+		this.id = id;
+	}
+
+	/**
+	 * @param name the name to set
+	 */
+	public void setName(String name) {
+		this.name = name;
+	}
+
+	/**
+	 * @param email the email to set
+	 */
+	public void setEmail(String email) {
+		this.email = email;
+	}
+
+	/**
+	 * @param availableProducts the availableProducts to set
+	 */
+	public void setAvailableProducts(Set<Product> availableProducts) {
+		this.availableProducts = availableProducts;
+	}
+
+
+
+
+
 	/**
 	 * Inner class to help in {@link Customer} construction. 
 	 * @author sergio
@@ -152,5 +196,9 @@ public class Customer implements CustomerInterface{
 		
 
 	}
+
+
+
+	
 
 }

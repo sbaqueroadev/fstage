@@ -1,17 +1,26 @@
 package co.com.sbaqueroa.model.implementation;
 
+import java.io.Serializable;
 import java.text.SimpleDateFormat;
 import java.util.Date;
-import java.util.List;
+import java.util.Set;
 
-import javax.sql.DataSource;
+import javax.persistence.CascadeType;
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.FetchType;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.ManyToOne;
+import javax.persistence.OneToMany;
+import javax.persistence.Table;
 
 import org.json.JSONObject;
-import org.springframework.context.ApplicationContext;
-import org.springframework.context.support.ClassPathXmlApplicationContext;
 
-import co.com.sbaqueroa.dao.implementation.OrderDAOImplementation;
-import co.com.sbaqueroa.dao.implementation.OrderDetailDAOImplementation;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
+
 import co.com.sbaqueroa.model.OrderInterface;
 
 /**
@@ -21,13 +30,17 @@ import co.com.sbaqueroa.model.OrderInterface;
  * @author sergio
  *
  */
-public class Order implements OrderInterface{
+@Entity
+@Table(name="`order`")
+public class Order implements Serializable{
 	
-	private int id;
-	private int customerId;
+
+	
+	private int id=-1;
+	private Customer customer;
 	private String deliveryAddress;
-	private List<SelectedProduct> products;
-	private Date creationDate;
+	private Set<OrderDetail> orderDetail;
+	private Date creationDate = new Date();
 	
 	/**
 	 * Super class constructor
@@ -41,14 +54,17 @@ public class Order implements OrderInterface{
 	 */
 	public Order(Builder builder) {
 		this.creationDate = builder.creationDate;
-		this.customerId = builder.customerId;
+		this.customer = builder.customer;
 		this.deliveryAddress = builder.deliveryAddress;
 		this.id = builder.id;
-		this.products = builder.products;
+		this.orderDetail = builder.products;
 	}
 	/**
 	 * @return the id
 	 */
+	@Id
+	@GeneratedValue(strategy=GenerationType.IDENTITY)
+    @Column(name="order_id",insertable = false, nullable = false, unique = true, updatable = false)
 	public int getId() {
 		return id;
 	}
@@ -61,18 +77,21 @@ public class Order implements OrderInterface{
 	/**
 	 * @return the customerId
 	 */
-	public int getCustomerId() {
-		return customerId;
+	@ManyToOne(fetch=FetchType.EAGER,targetEntity=Customer.class)
+    @JoinColumn(name="customer_id")
+	public Customer getCustomer() {
+		return this.customer;
 	}
 	/**
 	 * @param customerId the customerId to set
 	 */
-	public void setCustomerId(int customerId) {
-		this.customerId = customerId;
+	public void setCustomer(Customer customer) {
+		this.customer = customer;
 	}
 	/**
 	 * @return the deliveryAddress
 	 */
+	@Column(name="delivery_address",nullable=false)
 	public String getDeliveryAddress() {
 		return deliveryAddress;
 	}
@@ -85,18 +104,23 @@ public class Order implements OrderInterface{
 	/**
 	 * @return the products
 	 */
-	public List<SelectedProduct> getProducts() {
-		return products;
+	
+	@OneToMany(cascade={CascadeType.PERSIST,CascadeType.MERGE}
+	,targetEntity=OrderDetail.class, fetch=FetchType.LAZY,mappedBy="order")
+	@JsonManagedReference
+	public Set<OrderDetail> getOrderDetail() {
+		return orderDetail;
 	}
 	/**
 	 * @param products the products to set
 	 */
-	public void setProducts(List<SelectedProduct> products) {
-		this.products = products;
+	public void setOrderDetail(Set<OrderDetail> products) {
+		this.orderDetail = products;
 	}
 	/**
 	 * @return the creationDate
 	 */
+	@Column(name="creation_date")
 	public Date getCreationDate() {
 		return creationDate;
 	}
@@ -113,34 +137,14 @@ public class Order implements OrderInterface{
 	public JSONObject toJSON() {
 		return new JSONObject()
 				.put("id", this.id)
-				.put("customerId", this.customerId)
-				.put("products", this.products)
+				//.put("customer", this.customer.toJSON())
+				.put("products", this.orderDetail)
+				.put("deliveryAddress", this.deliveryAddress)
 				.put("deliveryAddress", this.deliveryAddress)
 				.put("creationDate", new SimpleDateFormat("yyyy-MM-dd").format(this.creationDate));
 	}
 	
-	@Override
-	public boolean add() {
-		OrderDAOImplementation cdaoi= new OrderDAOImplementation();
-		ApplicationContext appCtx = new ClassPathXmlApplicationContext("co/com/sbaqueroa/xml/beansConfig.xml");
-		DataSource dataSource = (DataSource) appCtx.getBean("dataSource");
-		cdaoi.setDataSource(dataSource);
-		try {
-			OrderDetailDAOImplementation odim = new OrderDetailDAOImplementation();
-			odim.setDataSource(dataSource);
-			this.setId(cdaoi.insert(this));
-			for(SelectedProduct sp:this.products)
-				odim.insert(new OrderDetail.Builder().setOrderId(this.id)
-						.setProductId(sp.getId())
-						.setQuantity(sp.getQuantity())
-						.build());
-						
-			return true;
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-		return false;
-	}
+	
 	
 	/**
 	 * Inner class to help in {@link Order} construction. 
@@ -149,9 +153,9 @@ public class Order implements OrderInterface{
 	 */
 	public static class Builder {
 		private int id;
-		private int customerId;
+		private Customer customer;
 		private String deliveryAddress;
-		private List<SelectedProduct> products;
+		private Set<OrderDetail> products;
 		private Date creationDate;
 		
 		/**
@@ -168,8 +172,8 @@ public class Order implements OrderInterface{
 		 * @param customerId the customer id to set.
 		 * @return the builder object.
 		 */
-		public Builder setCustomerId(int customerId) {
-			this.customerId = customerId;
+		public Builder setCustomerId(Customer customer) {
+			this.customer = customer;
 			return this;
 		}
 		/**
@@ -186,7 +190,7 @@ public class Order implements OrderInterface{
 		 * @param products the selected products to set.
 		 * @return the builder object.
 		 */
-		public Builder setProducts(List<SelectedProduct> products) {
+		public Builder setProducts(Set<OrderDetail> products) {
 			this.products = products;
 			return this;
 		}

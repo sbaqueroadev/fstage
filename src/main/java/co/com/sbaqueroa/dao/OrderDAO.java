@@ -20,7 +20,7 @@ public interface OrderDAO {
 	 * @param order Order to insert in data base. @see {@link Order}
 	 * @throws Exception if the data base writing produces an error.
 	 */
-	public int insert(Order order) throws Exception;
+	public Order insert(Order order) throws Exception;
 	/**
 	 * <p>
 	 * Executes query in database and processes reading result to return
@@ -41,5 +41,6 @@ public interface OrderDAO {
 	 * @throws Exception if the data base reading produces an error.
 	 */
 	public List<Order> getAll() throws Exception;
+	public void update(Order order);
 	
 }
